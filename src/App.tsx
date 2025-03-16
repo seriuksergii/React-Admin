@@ -1,0 +1,75 @@
+import { Admin, Edit, EditGuesser, ListGuesser, Resource, ShowGuesser } from "react-admin";
+import { BrowserRouter } from "react-router-dom";
+import authProvider from "./authProvider";
+import CustomLoginPage from "./CustomLoginForm";
+import dataProvider from "./dataProvider";
+
+import { ScrapperList } from "./pages/scrappers/ScrapperList";
+import ScrapperCreate from "./pages/scrappers/ScrapperCreate";
+import { ScrapperEdit } from "./pages/scrappers/ScrapperEdit";
+import AdvertisementPage from "./pages/advertisement/AdvertisementPage";
+import TopBooksEdit from "./pages/advertisement/TopBooksEdit";
+import GroupIcon from "@mui/icons-material/Group";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import FolderCopyIcon from "@mui/icons-material/FolderCopy";
+import CastIcon from "@mui/icons-material/Cast";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import KeyboardHideIcon from "@mui/icons-material/KeyboardHide";
+import HomePage from "./pages/HomePage";
+import { Layout } from "./Layout";
+import { UserList } from "./pages/users/UserList";
+import { UserEdit } from "./pages/users/UserEdit";
+import { UserShow } from "./pages/users/UserShow";
+import { BookList } from "./pages/books/BooksList";
+
+const App = () => (
+  <BrowserRouter>
+    <Admin
+      dataProvider={dataProvider}
+      layout={Layout}
+      authProvider={authProvider}
+      loginPage={CustomLoginPage}
+      dashboard={HomePage}
+    >
+      <Resource
+        icon={GroupIcon}
+        name="users"
+        list={UserList}
+        edit={UserEdit}
+        show={UserShow}
+        options={{ label: "Користувачі" }}
+      />
+      <Resource
+        icon={MenuBookIcon}
+        name="books"
+        list={BookList}
+        edit={EditGuesser}
+        show={ShowGuesser}
+        options={{ label: "Книги" }}
+      />
+      <Resource
+        icon={FolderCopyIcon}
+        name="categories"
+        options={{ label: "Категорії" }}
+      />
+      <Resource
+        icon={CastIcon}
+        name="scrappers"
+        list={ScrapperList}
+        edit={ScrapperEdit}
+        create={ScrapperCreate}
+        options={{ label: "Скрапери" }}
+      />
+      <Resource icon={PriorityHighIcon} name="priority" list={ListGuesser} />
+      <Resource
+        icon={KeyboardHideIcon}
+        name="hide"
+        list={AdvertisementPage}
+        edit={TopBooksEdit}
+        options={{ label: "Реклама" }}
+      />
+    </Admin>
+  </BrowserRouter>
+);
+
+export default App;
