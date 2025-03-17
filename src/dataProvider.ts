@@ -95,7 +95,7 @@ const dataProvider: DataProvider = {
 
     const url = `${getResourceUrl(resource)}${params.id}/`;
     const { json } = await httpClient(url);
-    console.log("getOne response:", json); 
+    console.log("getOne response:", json);
 
     if (!json || !json.id) {
       throw new Error("Дані не знайдено або неправильний формат відповіді");
@@ -165,7 +165,8 @@ const dataProvider: DataProvider = {
     if (resource === "hide") {
       const url = `${HIDE_URL}${params.id}/`;
       const { json } = await httpClient(url, {
-        method: "PUT",
+        method: "PATCH",
+        headers: new Headers({ "Content-Type": "application/json" }),
         body: JSON.stringify(params.data),
       });
       return { data: json };
@@ -173,7 +174,7 @@ const dataProvider: DataProvider = {
 
     const url = `${getResourceUrl(resource)}${params.id}/`;
     const { json } = await httpClient(url, {
-      method: "PUT",
+      method: "PATCH",
       headers: new Headers({ "Content-Type": "application/json" }),
       body: JSON.stringify(params.data),
     });

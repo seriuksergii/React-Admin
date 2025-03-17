@@ -1,19 +1,31 @@
-// src/authProvider.ts
 import { AuthProvider } from "react-admin";
-import axios from "axios";
 
 const BASE_URL = "https://toread.onrender.com/";
 const LOGIN_URL = `${BASE_URL}moderator/auth/login/`;
 const LOGOUT_URL = `${BASE_URL}logout/`;
 
 const authProvider: AuthProvider = {
-  // Автентифікація користувача
   login: async ({ email, password }) => {
     try {
-      const response = await axios.post(LOGIN_URL, { email, password });
+      const response = await fetch(LOGIN_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-      if (response.data && response.data.access) {
-        localStorage.setItem("token", response.data.access); // Зберігаємо токен
+      if (!response.ok) {
+        throw new Error("Невірний email або пароль");
+      }
+
+      const data = await response.json();
+
+      if (data && data.access) {
+        localStorage.setItem("token", data.access);
         return Promise.resolve();
       } else {
         throw new Error("Невірний email або пароль");
@@ -23,16 +35,19 @@ const authProvider: AuthProvider = {
     }
   },
 
-  // Перевірка автентифікації
   checkAuth: () => {
     const token = localStorage.getItem("token");
     return token ? Promise.resolve() : Promise.reject();
   },
 
-  // Вихід
   logout: async () => {
     try {
-      await axios.post(LOGOUT_URL);
+      await fetch(LOGOUT_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       localStorage.removeItem("token");
       return Promise.resolve();
     } catch (error) {
@@ -40,7 +55,6 @@ const authProvider: AuthProvider = {
     }
   },
 
-  // Перевірка помилок
   checkError: (error) => {
     const status = error.status;
     if (status === 401 || status === 403) {
@@ -50,15 +64,13 @@ const authProvider: AuthProvider = {
     return Promise.resolve();
   },
 
-  // Отримання прав користувача
   getPermissions: () => {
-    const role = localStorage.getItem("role"); // Припустимо, що роль зберігається в localStorage
+    const role = localStorage.getItem("role");
     return role ? Promise.resolve(role) : Promise.reject();
   },
 
-  // Отримання інформації про користувача
   getIdentity: () => {
-    const user = localStorage.getItem("user"); // Припустимо, що дані користувача зберігаються в localStorage
+    const user = localStorage.getItem("user");
     if (user) {
       return Promise.resolve(JSON.parse(user));
     }

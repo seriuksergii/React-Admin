@@ -10,10 +10,10 @@ const HomePage = () => {
         height: "100vh",
       }}
     >
-      <Card sx={{ width: 400, padding: 2, textAlign: "center" }}>
+      <Card sx={{ width: 500, padding: 5, textAlign: "center" }}>
         <CardContent>
           <Typography variant="h5" component="h1" gutterBottom>
-            Welcome to the Admin Panel
+            Welcome to the ChytAi Admin Panel
           </Typography>
           <Typography variant="body1">
             Use the menu on the left to navigate through the resources

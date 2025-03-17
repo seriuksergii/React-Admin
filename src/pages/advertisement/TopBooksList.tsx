@@ -15,7 +15,13 @@ export const TopBooksList = () => {
 
   return (
     <List>
-      <Datagrid rowClick="edit" data={topBooks}>
+      <Datagrid
+        data={topBooks}
+        rowClick="show"
+        sx={{
+          ".RaDatagrid-headerCell": { fontWeight: "bold", bgcolor: "#d88f42" },
+        }}
+      >
         <TextField source="book_name" label="Назва книжки" />
         <TextField source="is_active" label="Закріплено в топі" />
         <TextField source="date_end" label="Дата завершення" />

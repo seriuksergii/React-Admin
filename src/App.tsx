@@ -1,7 +1,13 @@
-import { Admin, Edit, EditGuesser, ListGuesser, Resource, ShowGuesser } from "react-admin";
+import {
+  Admin,
+  EditGuesser,
+  ListGuesser,
+  Resource,
+  ShowGuesser,
+} from "react-admin";
 import { BrowserRouter } from "react-router-dom";
 import authProvider from "./authProvider";
-import CustomLoginPage from "./CustomLoginForm";
+import CustomLoginPage from "./components/CustomLoginForm";
 import dataProvider from "./dataProvider";
 
 import { ScrapperList } from "./pages/scrappers/ScrapperList";
@@ -15,12 +21,16 @@ import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import CastIcon from "@mui/icons-material/Cast";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import KeyboardHideIcon from "@mui/icons-material/KeyboardHide";
-import HomePage from "./pages/HomePage";
+import HomePage from "./components/HomePage";
 import { Layout } from "./Layout";
 import { UserList } from "./pages/users/UserList";
 import { UserEdit } from "./pages/users/UserEdit";
 import { UserShow } from "./pages/users/UserShow";
 import { BookList } from "./pages/books/BooksList";
+import UserCreate from "./pages/users/UserCreate";
+import { CategoryList } from "./pages/categories/CategoryList";
+import { CategoryEdit } from "./pages/categories/CategoryEdit";
+import CategoryCreate from "./pages/categories/CategoryCreate";
 
 const App = () => (
   <BrowserRouter>
@@ -37,6 +47,7 @@ const App = () => (
         list={UserList}
         edit={UserEdit}
         show={UserShow}
+        create={UserCreate}
         options={{ label: "Користувачі" }}
       />
       <Resource
@@ -50,6 +61,9 @@ const App = () => (
       <Resource
         icon={FolderCopyIcon}
         name="categories"
+        list={CategoryList}
+        edit={CategoryEdit}
+        create={CategoryCreate}
         options={{ label: "Категорії" }}
       />
       <Resource

@@ -8,9 +8,14 @@ interface ScrapPropsTypes {
 
 export const ScrapperList = (props: ScrapPropsTypes) => (
   <List {...props}>
-    <Datagrid>
-      <TextField source="name" />
-      <BooleanField source="is_active" />
+    <Datagrid
+      rowClick="show"
+      sx={{
+        ".RaDatagrid-headerCell": { fontWeight: "bold", bgcolor: "#d88f42" },
+      }}
+    >
+      <TextField source="name" label='Назва' />
+      <BooleanField source="is_active" label='Активний' />
     </Datagrid>
   </List>
 );
