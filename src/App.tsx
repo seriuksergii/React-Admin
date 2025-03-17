@@ -8,7 +8,7 @@ import {
 import { BrowserRouter } from "react-router-dom";
 import authProvider from "./authProvider";
 import CustomLoginPage from "./components/CustomLoginForm";
-import dataProvider from "./dataProvider";
+
 
 import { ScrapperList } from "./pages/scrappers/ScrapperList";
 import ScrapperCreate from "./pages/scrappers/ScrapperCreate";
@@ -31,11 +31,12 @@ import UserCreate from "./pages/users/UserCreate";
 import { CategoryList } from "./pages/categories/CategoryList";
 import { CategoryEdit } from "./pages/categories/CategoryEdit";
 import CategoryCreate from "./pages/categories/CategoryCreate";
+import CustomDataProvider from "./dataProvider";
 
 const App = () => (
   <BrowserRouter>
     <Admin
-      dataProvider={dataProvider}
+      dataProvider={CustomDataProvider}
       layout={Layout}
       authProvider={authProvider}
       loginPage={CustomLoginPage}

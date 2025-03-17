@@ -1,12 +1,9 @@
 import {
   fetchUtils,
   DataProvider,
+  RaRecord,
   DeleteParams,
   DeleteResult,
-  RaRecord,
-  GetListParams,
-  GetOneParams,
-  GetManyParams,
 } from "react-admin";
 import { stringify } from "query-string";
 
@@ -18,15 +15,23 @@ const SCRAPPERS_URL = `${BASE_URL}moderator/scrappers/`;
 const HIDE_URL = `${BASE_URL}moderator/hide/`;
 const PRIORITY_URL = `${BASE_URL}moderator/priority/`;
 
-const httpClient = (url: string, options: fetchUtils.Options = {}) => {
+const httpClient = async (url: string, options: fetchUtils.Options = {}) => {
   if (!options.headers) {
     options.headers = new Headers({ Accept: "application/json" });
   }
+
   const token = localStorage.getItem("token");
   if (token) {
     (options.headers as Headers).set("Authorization", `Bearer ${token}`);
   }
-  return fetchUtils.fetchJson(url, options);
+
+  try {
+    const response = await fetchUtils.fetchJson(url, options);
+    return response;
+  } catch (error) {
+    console.error("HTTP Client Error:", error);
+    throw new Error("Помилка при виконанні запиту до сервера");
+  }
 };
 
 const getResourceUrl = (resource: string) => {
@@ -44,58 +49,38 @@ const getResourceUrl = (resource: string) => {
     case "priority":
       return PRIORITY_URL;
     default:
-      throw new Error(`Unknown resource: ${resource}`);
+      throw new Error(`Невідомий ресурс: ${resource}`);
   }
 };
 
-const dataProvider: DataProvider = {
+const CustomDataProvider: DataProvider = {
   async getList(resource, params) {
-    if (resource === "hide") {
-      const url = `${HIDE_URL}?${stringify(params.filter)}`;
-      const { json } = await httpClient(url);
-      return {
-        data: json.results,
-        total: json.count,
-      };
-    }
-
     const { page, perPage } = params.pagination || { page: 1, perPage: 10 };
     const { field, order } = params.sort || { field: "id", order: "ASC" };
 
-    const query: Record<string, string | number> = {
+    const query = {
       page,
       page_size: perPage,
       ordering: order === "ASC" ? field : `-${field}`,
-      ...params.filter,
+      filter: JSON.stringify(params.filter),
     };
 
     const url = `${getResourceUrl(resource)}?${stringify(query)}`;
     const { json } = await httpClient(url);
 
-    if (!json?.results || !Array.isArray(json.results)) {
-      throw new Error("Invalid API response: expected 'results' array");
+    if (!json) {
+      throw new Error("Невірна відповідь API: очікувався JSON");
     }
 
     return {
-      data: json.results.map((item: { id: GetListParams }) => ({
-        ...item,
-        id: item.id,
-      })),
-      total: json.count ?? 0,
+      data: json.results || json.items || json,
+      total: json.count || json.total || json.length || 1,
     };
   },
 
   async getOne(resource, params) {
-    if (resource === "hide") {
-      const url = `${HIDE_URL}${params.id}/`;
-      const { json } = await httpClient(url);
-      console.log("getOne response (hide):", json);
-      return { data: json };
-    }
-
     const url = `${getResourceUrl(resource)}${params.id}/`;
     const { json } = await httpClient(url);
-    console.log("getOne response:", json);
 
     if (!json || !json.id) {
       throw new Error("Дані не знайдено або неправильний формат відповіді");
@@ -105,15 +90,14 @@ const dataProvider: DataProvider = {
   },
 
   async getMany(resource, params) {
-    const query = { id__in: params.ids.join(",") };
+    const query = {
+      filter: JSON.stringify({ id: params.ids }),
+    };
     const url = `${getResourceUrl(resource)}?${stringify(query)}`;
     const { json } = await httpClient(url);
 
     return {
-      data: json.results.map((item: { id: GetOneParams }) => ({
-        ...item,
-        id: item.id,
-      })),
+      data: json.results || json.items || json,
     };
   },
 
@@ -121,36 +105,26 @@ const dataProvider: DataProvider = {
     const { page, perPage } = params.pagination || { page: 1, perPage: 10 };
     const { field, order } = params.sort || { field: "id", order: "ASC" };
 
-    const query: Record<string, string | number> = {
+    const query = {
       page,
       page_size: perPage,
       ordering: order === "ASC" ? field : `-${field}`,
-      [params.target]: params.id,
-      ...params.filter,
+      filter: JSON.stringify({
+        ...params.filter,
+        [params.target]: params.id,
+      }),
     };
 
     const url = `${getResourceUrl(resource)}?${stringify(query)}`;
     const { json } = await httpClient(url);
 
     return {
-      data: json.results.map((item: { id: GetManyParams }) => ({
-        ...item,
-        id: item.id,
-      })),
-      total: json.count ?? 0,
+      data: json.results || json.items || json,
+      total: json.count || json.total || json.length || 1,
     };
   },
 
   async create(resource, params) {
-    if (resource === "hide") {
-      const url = HIDE_URL;
-      const { json } = await httpClient(url, {
-        method: "POST",
-        body: JSON.stringify(params.data),
-      });
-      return { data: json };
-    }
-
     const url = getResourceUrl(resource);
     const { json } = await httpClient(url, {
       method: "POST",
@@ -158,20 +132,14 @@ const dataProvider: DataProvider = {
       body: JSON.stringify(params.data),
     });
 
+    if (!json || !json.id) {
+      throw new Error("Помилка при створенні ресурсу");
+    }
+
     return { data: { ...json, id: json.id } };
   },
 
   async update(resource, params) {
-    if (resource === "hide") {
-      const url = `${HIDE_URL}${params.id}/`;
-      const { json } = await httpClient(url, {
-        method: "PATCH",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(params.data),
-      });
-      return { data: json };
-    }
-
     const url = `${getResourceUrl(resource)}${params.id}/`;
     const { json } = await httpClient(url, {
       method: "PATCH",
@@ -182,43 +150,18 @@ const dataProvider: DataProvider = {
     return { data: { ...json, id: json.id } };
   },
 
-  async delete<RecordType extends RaRecord = DeleteParams>(
+  async delete<RecordType extends RaRecord = RaRecord>(
     resource: string,
     params: DeleteParams<RecordType>,
   ): Promise<DeleteResult<RecordType>> {
-    if (resource === "hide") {
-      const url = `${HIDE_URL}${params.id}/`;
-      await httpClient(url, {
-        method: "DELETE",
-      });
-      if (!params.previousData) {
-        throw new Error("Previous data is undefined");
-      }
-      return { data: params.previousData };
-    }
-
-    const url =
-      resource === "books"
-        ? `${BOOKS_URL}${params.id}`
-        : `${USERS_URL}${params.id}`;
-
-    const { json } = await httpClient(url, {
+    const url = `${getResourceUrl(resource)}${params.id}/`;
+    await httpClient(url, {
       method: "DELETE",
     });
 
-    if (typeof json !== "object" || json === null) {
-      throw new Error("Invalid API response: expected an object");
-    }
-
-    return {
-      data: json as RecordType,
-    };
+    return { data: (params.previousData || { id: params.id }) as RecordType };
   },
 
-  async getCategories() {
-    const { json } = await httpClient(`${BOOKS_URL}categories/`);
-    return { data: json };
-  },
   async updateMany(resource, params) {
     const url = getResourceUrl(resource);
     const requests = params.ids.map((id) =>
@@ -229,8 +172,13 @@ const dataProvider: DataProvider = {
       }),
     );
 
-    const responses = await Promise.all(requests);
-    return { data: responses.map(({ json }) => json.id) };
+    try {
+      const responses = await Promise.all(requests);
+      return { data: responses.map(({ json }) => json.id) };
+    } catch (error) {
+      console.error("Помилка при оновленні кількох записів:", error);
+      throw new Error("Помилка при оновленні даних");
+    }
   },
 
   async deleteMany(resource, params) {
@@ -244,6 +192,11 @@ const dataProvider: DataProvider = {
     await Promise.all(requests);
     return { data: params.ids };
   },
+
+  async getCategories() {
+    const { json } = await httpClient(`${BOOKS_URL}categories/`);
+    return { data: json };
+  },
 };
 
-export default dataProvider;
+export default CustomDataProvider;
