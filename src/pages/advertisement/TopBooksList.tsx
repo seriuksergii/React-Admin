@@ -1,49 +1,23 @@
 import {
-  Datagrid,
-  EditButton,
   List,
+  Datagrid,
   TextField,
-  useGetList,
-  SimpleForm,
-  AutocompleteInput,
+  BooleanField,
+  DateField,
+  EditButton,
 } from "react-admin";
 
-export const TopBooksList = () => {
-  const { data: topBooks, isLoading } = useGetList("hide");
+const TopBooksList = () => (
+  <List resource="priority" filter={{ is_pinned: true }}>
+    <Datagrid>
+      <TextField source="name" label="Назва" />
+      <BooleanField source="is_pinned" label="Закріплено в топі" />
+      <DateField source="date_end" label="Дата завершення" />
+      <BooleanField source="hide_prices" label="Приховати ціни" />
+      <TextField source="selected_store" label="Обраний магазин" />
+      <EditButton />
+    </Datagrid>
+  </List>
+);
 
-  if (isLoading) return <div>Завантаження...</div>;
-
-  return (
-    <List>
-      <Datagrid
-        data={topBooks}
-        rowClick="show"
-        sx={{
-          ".RaDatagrid-headerCell": { fontWeight: "bold", bgcolor: "#d88f42" },
-        }}
-      >
-        <TextField source="book_name" label="Назва книжки" />
-        <TextField source="is_active" label="Закріплено в топі" />
-        <TextField source="date_end" label="Дата завершення" />
-        <TextField source="price_store" label="Магазин для цін" />
-        <EditButton label="Редагувати" />
-      </Datagrid>
-    </List>
-  );
-};
-
-export const BookSearch = () => {
-  const { data: books, isLoading } = useGetList("books");
-
-  return (
-    <SimpleForm>
-      <AutocompleteInput
-        source="book"
-        choices={books}
-        optionText="name"
-        optionValue="id"
-        isLoading={isLoading}
-      />
-    </SimpleForm>
-  );
-};
+export default TopBooksList;

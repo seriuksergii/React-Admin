@@ -58,11 +58,14 @@ const CustomDataProvider: DataProvider = {
     const { page, perPage } = params.pagination || { page: 1, perPage: 10 };
     const { field, order } = params.sort || { field: "id", order: "ASC" };
 
+    // Додаємо параметр пошуку за назвою книги
+    const searchQuery =
+      params.filter?.name || params.filter?.search_query || "";
     const query = {
       page,
       page_size: perPage,
       ordering: order === "ASC" ? field : `-${field}`,
-      filter: JSON.stringify(params.filter),
+      name: searchQuery, // Використовуємо параметр "name" для пошуку за назвою
     };
 
     const url = `${getResourceUrl(resource)}?${stringify(query)}`;
@@ -78,8 +81,15 @@ const CustomDataProvider: DataProvider = {
     };
   },
 
+  // Інші методи залишаються без змін
   async getOne(resource, params) {
-    const url = `${getResourceUrl(resource)}${params.id}/`;
+    let url;
+    if (resource === "books") {
+      url = `${BOOKS_URL}${params.id}/`;
+    } else {
+      url = `${getResourceUrl(resource)}${params.id}/`;
+    }
+
     const { json } = await httpClient(url);
 
     if (!json || !json.id) {
@@ -140,6 +150,15 @@ const CustomDataProvider: DataProvider = {
   },
 
   async update(resource, params) {
+    if (resource === "advertisement" && params.data.is_pinned) {
+      const { json: currentPinnedBooks } = await httpClient(
+        `${PRIORITY_URL}?is_pinned=true`,
+      );
+      if (currentPinnedBooks.length >= 5) {
+        throw new Error("Максимальна кількість книг у топі - 5");
+      }
+    }
+
     const url = `${getResourceUrl(resource)}${params.id}/`;
     const { json } = await httpClient(url, {
       method: "PATCH",

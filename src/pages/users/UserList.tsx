@@ -22,7 +22,7 @@ interface User {
 export const UserList = () => (
   <List
     sort={{ field: "first_name", order: "DESC" }}
-    filters={[<SearchInput key="search-input" source="q" alwaysOn />]}
+    filters={[<SearchInput key="search-input" source="q" alwaysOn />]} 
   >
     <Datagrid
       rowClick="show"

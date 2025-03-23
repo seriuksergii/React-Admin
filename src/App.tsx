@@ -1,25 +1,14 @@
-import {
-  Admin,
-  EditGuesser,
-  ListGuesser,
-  Resource,
-  ShowGuesser,
-} from "react-admin";
+import { Admin, Resource } from "react-admin";
 import { BrowserRouter } from "react-router-dom";
 import authProvider from "./authProvider";
 import CustomLoginPage from "./components/CustomLoginForm";
-
-
 import { ScrapperList } from "./pages/scrappers/ScrapperList";
 import ScrapperCreate from "./pages/scrappers/ScrapperCreate";
 import { ScrapperEdit } from "./pages/scrappers/ScrapperEdit";
-import AdvertisementPage from "./pages/advertisement/AdvertisementPage";
-import TopBooksEdit from "./pages/advertisement/TopBooksEdit";
 import GroupIcon from "@mui/icons-material/Group";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import CastIcon from "@mui/icons-material/Cast";
-import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import KeyboardHideIcon from "@mui/icons-material/KeyboardHide";
 import HomePage from "./components/HomePage";
 import { Layout } from "./Layout";
@@ -32,6 +21,8 @@ import { CategoryList } from "./pages/categories/CategoryList";
 import { CategoryEdit } from "./pages/categories/CategoryEdit";
 import CategoryCreate from "./pages/categories/CategoryCreate";
 import CustomDataProvider from "./dataProvider";
+import { BookShow } from "./pages/books/BooksShow";
+import AdvertisementPage from "./pages/advertisement/AdvertisementPage";
 
 const App = () => (
   <BrowserRouter>
@@ -55,8 +46,7 @@ const App = () => (
         icon={MenuBookIcon}
         name="books"
         list={BookList}
-        edit={EditGuesser}
-        show={ShowGuesser}
+        show={BookShow}
         options={{ label: "Книги" }}
       />
       <Resource
@@ -75,12 +65,11 @@ const App = () => (
         create={ScrapperCreate}
         options={{ label: "Скрапери" }}
       />
-      <Resource icon={PriorityHighIcon} name="priority" list={ListGuesser} />
+
       <Resource
         icon={KeyboardHideIcon}
-        name="hide"
+        name="priority"
         list={AdvertisementPage}
-        edit={TopBooksEdit}
         options={{ label: "Реклама" }}
       />
     </Admin>
