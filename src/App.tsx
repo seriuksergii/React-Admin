@@ -22,7 +22,8 @@ import { CategoryEdit } from "./pages/categories/CategoryEdit";
 import CategoryCreate from "./pages/categories/CategoryCreate";
 import CustomDataProvider from "./dataProvider";
 import { BookShow } from "./pages/books/BooksShow";
-import AdvertisementPage from "./pages/advertisement/AdvertisementPage";
+import { AdvertisementPage } from "./pages/advertisement/AdvertisementPage";
+
 
 const App = () => (
   <BrowserRouter>

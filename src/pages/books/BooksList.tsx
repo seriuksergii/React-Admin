@@ -1,3 +1,4 @@
+import { green } from "@mui/material/colors";
 import {
   Datagrid,
   List,
@@ -21,7 +22,11 @@ export const BookList = () => (
       <TextField source="author" label="Автор" />
       <TextField source="category" label="Категорія" />
       <NumberField source="price" label="Ціна" />
-      <NumberField source="price_with_discount" label="Ціна зі знижкою" />
+      <NumberField
+        source="price_with_discount"
+        label="Ціна зі знижкою"
+        sx={{ color: green[800] }}
+      />
       <TextField source="type_of_prod" label="Тип книги" />
       <NumberField source="year_of_publication" label="Рік публікації" />
       <TextField source="language" label="Мова" />

@@ -58,14 +58,13 @@ const CustomDataProvider: DataProvider = {
     const { page, perPage } = params.pagination || { page: 1, perPage: 10 };
     const { field, order } = params.sort || { field: "id", order: "ASC" };
 
-    // Додаємо параметр пошуку за назвою книги
     const searchQuery =
       params.filter?.name || params.filter?.search_query || "";
     const query = {
       page,
       page_size: perPage,
       ordering: order === "ASC" ? field : `-${field}`,
-      name: searchQuery, // Використовуємо параметр "name" для пошуку за назвою
+      name: searchQuery,
     };
 
     const url = `${getResourceUrl(resource)}?${stringify(query)}`;
@@ -81,7 +80,6 @@ const CustomDataProvider: DataProvider = {
     };
   },
 
-  // Інші методи залишаються без змін
   async getOne(resource, params) {
     let url;
     if (resource === "books") {
@@ -174,11 +172,20 @@ const CustomDataProvider: DataProvider = {
     params: DeleteParams<RecordType>,
   ): Promise<DeleteResult<RecordType>> {
     const url = `${getResourceUrl(resource)}${params.id}/`;
-    await httpClient(url, {
-      method: "DELETE",
-    });
 
-    return { data: (params.previousData || { id: params.id }) as RecordType };
+    console.log("Виконується DELETE запит на URL:", url);
+
+    try {
+      await httpClient(url, {
+        method: "DELETE",
+      });
+
+      console.log("DELETE запит успішно виконано");
+      return { data: (params.previousData || { id: params.id }) as RecordType };
+    } catch (error) {
+      console.error("Помилка при виконанні DELETE запиту:", error);
+      throw error;
+    }
   },
 
   async updateMany(resource, params) {
