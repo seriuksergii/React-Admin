@@ -25,12 +25,22 @@ const httpClient = async (url: string, options: fetchUtils.Options = {}) => {
     (options.headers as Headers).set("Authorization", `Bearer ${token}`);
   }
 
+  console.log("Making request to:", url);
+  console.log("Request options:", {
+    method: options.method,
+    headers: Object.fromEntries((options.headers as Headers).entries()),
+  });
+
   try {
     const response = await fetchUtils.fetchJson(url, options);
+    console.log("Response:", response);
     return response;
   } catch (error) {
-    console.error("HTTP Client Error:", error);
-    throw new Error("Помилка при виконанні запиту до сервера");
+    console.error("HTTP Client Error details:", {
+      url,
+      error,
+    });
+    throw new Error(`Помилка при виконанні запиту до ${url}.`);
   }
 };
 
@@ -171,20 +181,22 @@ const CustomDataProvider: DataProvider = {
     resource: string,
     params: DeleteParams<RecordType>,
   ): Promise<DeleteResult<RecordType>> {
-    const url = `${getResourceUrl(resource)}${params.id}/`;
-
-    console.log("Виконується DELETE запит на URL:", url);
+    const url = `${getResourceUrl(resource)}${params.id}`;
 
     try {
-      await httpClient(url, {
+      const response = await httpClient(url, {
         method: "DELETE",
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        }),
       });
 
-      console.log("DELETE запит успішно виконано");
-      return { data: (params.previousData || { id: params.id }) as RecordType };
+      console.log("Delete successful:", response);
+      return { data: params.previousData as RecordType };
     } catch (error) {
-      console.error("Помилка при виконанні DELETE запиту:", error);
-      throw error;
+      console.error("Delete error:", error);
+      throw new Error("Помилка при видаленні запису");
     }
   },
 

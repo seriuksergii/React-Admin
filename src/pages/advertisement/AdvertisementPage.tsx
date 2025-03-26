@@ -1,10 +1,10 @@
-import { TabbedForm, FormTab } from 'react-admin';
-import { TopBooksList } from './TopBooksList';
+import { TabbedForm, FormTab } from "react-admin";
+import { TopBooksManager } from "./TopBooksManager";
 
 export const AdvertisementPage = () => (
-    <TabbedForm>
-        <FormTab label="Вивести в топ">
-            <TopBooksList />
-        </FormTab>
-    </TabbedForm>
+  <TabbedForm>
+    <FormTab label="Вивести в топ">
+      <TopBooksManager />
+    </FormTab>
+  </TabbedForm>
 );
